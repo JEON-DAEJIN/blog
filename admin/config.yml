@@ -2,6 +2,8 @@ backend:
   name: github
   repo: JEON-DAEJIN/blog
   branch: main
+  # 블로그는 GitHub Pages에서 호스팅되고, 로그인만 아래 Netlify 프로젝트를 빌려 씁니다.
+  site_domain: funny-zabaione-3e52a3.netlify.app
 
 site_url: https://jeon-daejin.github.io/blog
 display_url: https://jeon-daejin.github.io/blog
