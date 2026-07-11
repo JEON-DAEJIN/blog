@@ -101,6 +101,7 @@ jobs:
             core.setOutput('post_title', title);
 
       - name: Commit and push
+        id: commit
         env:
           # 제목에 따옴표 등 특수문자가 섞여도 쉘 명령어가 깨지지 않도록
           # 텍스트를 직접 끼워넣지 않고 환경변수로 전달합니다.
@@ -112,13 +113,30 @@ jobs:
           git add "$POST_FILENAME"
           git commit -m "post: $POST_TITLE"
           git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Trigger site deploy
         # GITHUB_TOKEN으로 만든 push는 다른 워크플로(Build and Deploy)를 자동으로
         # 트리거하지 않으므로, 배포 워크플로를 명시적으로 실행 요청합니다.
+        # workflow_dispatch의 ref는 브랜치/태그 이름만 허용되고 커밋 SHA는 못 써서,
+        # 대신 main 브랜치 참조가 방금 push한 커밋으로 갱신될 때까지 잠깐 기다렸다가
+        # 배포를 걸어서, 이전 커밋이 빌드되는 경합 문제를 피합니다.
         uses: actions/github-script@v7
+        env:
+          COMMIT_SHA: ${{ steps.commit.outputs.sha }}
         with:
           script: |
+            const expectedSha = process.env.COMMIT_SHA;
+            for (let i = 0; i < 10; i++) {
+              const { data: branch } = await github.rest.repos.getBranch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: 'main',
+              });
+              if (branch.commit.sha === expectedSha) break;
+              await new Promise((r) => setTimeout(r, 1000));
+            }
+
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
