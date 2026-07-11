@@ -14,9 +14,20 @@ timezone: Asia/Seoul
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: AI 에이전트 개발 기록 # the main title
+title: AI 에이전트 개발기록 # the main title (SEO/메타용 한 줄 버전)
 
-tagline: 50대 비개발자가 생성형 AI와 AI 에이전트를 배우며 개발,실습,시행착오를 기록하는 성장 아카이브 # it will display as the subtitle
+tagline: 50대 비개발자가 생성형 AI와 AI 에이전트를 배우며 기록해나가는 성장 아카이브 # it will display as the subtitle (SEO/메타용 한 줄 버전)
+
+# 사이드바에 여러 줄로 나눠 보여주기 위한 값 (SEO 메타에는 영향 없음, _includes/sidebar.html 전용)
+title_lines:
+  - "AI 에이전트"
+  - "개발기록"
+
+tagline_lines:
+  - "50대 비개발자가"
+  - "생성형 AI와 AI 에이전트를"
+  - "배우며 기록해나가는"
+  - "성장 아카이브"
 
 description: >- # used by seo meta and the atom feed
   AI를 배우면서 배운 내용, 시행착오, 생각을 정리하는 개인 학습 블로그입니다.

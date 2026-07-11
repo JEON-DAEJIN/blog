@@ -1,8 +1,12 @@
 <!-- The Side Bar -->
 <!--
   이 파일은 jekyll-theme-chirpy 기본 sidebar.html을 오버라이드한 버전입니다.
-  변경점: "카테고리" 탭을 클릭하면 하위에 3개 카테고리로 바로 이동할 수 있는
-  드롭다운(펼치기/접히기) 서브메뉴가 나타납니다.
+  변경점:
+  1. "카테고리" 탭을 클릭하면 하위에 3개 카테고리로 바로 이동할 수 있는
+     드롭다운(펼치기/접히기) 서브메뉴가 나타납니다.
+  2. 사이트 타이틀/태그라인을 _config.yml의 title_lines/tagline_lines 값으로
+     여러 줄로 나눠 표시합니다(값이 없으면 기존 title/tagline 한 줄 표시로 대체).
+  3. 사이드바 메뉴 맨 아래에 "관리자"(/admin/) 바로가기 링크가 추가됩니다.
 -->
 
 <aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
@@ -16,8 +20,24 @@
       {%- endif -%}
     </a>
 
-    <a class="site-title d-block" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-    <p class="site-subtitle fst-italic mb-0">{{ site.tagline }}</p>
+    <a class="site-title d-block" href="{{ '/' | relative_url }}">
+      {%- if site.title_lines -%}
+        {%- for line in site.title_lines -%}
+          {{- line -}}{% unless forloop.last %}<br>{% endunless %}
+        {%- endfor -%}
+      {%- else -%}
+        {{ site.title }}
+      {%- endif -%}
+    </a>
+    <p class="site-subtitle fst-italic mb-0">
+      {%- if site.tagline_lines -%}
+        {%- for line in site.tagline_lines -%}
+          {{- line -}}{% unless forloop.last %}<br>{% endunless %}
+        {%- endfor -%}
+      {%- else -%}
+        {{ site.tagline }}
+      {%- endif -%}
+    </p>
   </header>
   <!-- .profile-wrapper -->
 
