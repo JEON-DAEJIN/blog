@@ -29,8 +29,6 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
             --max-turns 6
-            --output-format json
-            --json-schema '{"type":"object","properties":{"draft_markdown":{"type":"string"},"note":{"type":"string"}},"required":["draft_markdown","note"]}'
           prompt: |
             너는 "AI 에이전트 개발기록"(DJ's Blog)의 글쓰기 도우미야.
             이 저장소의 README.md, _tabs/about.md, 그리고 _posts/ 안의 기존 글들을 참고해서
@@ -46,40 +44,49 @@ jobs:
             ${{ github.event.issue.body }}
             ---
 
-            이 내용을 위 원칙에 맞는 완성된 블로그 글로 다듬어줘.
+            이 내용을 위 원칙에 맞는 완성된 블로그 글로 다듬어서 답변해줘. 답변 형식:
 
-            - draft_markdown: Jekyll front matter(title, date, categories, tags, description)와
-              본문을 합친 완성된 마크다운 전체. date는 ${{ github.event.issue.created_at }} 기준으로
-              "YYYY-MM-DD HH:mm:ss +0900" 형식(KST로 변환)으로.
-            - note: 왜 이렇게 구성했는지 1~2문장 설명.
-
-            파일을 만들거나 수정하거나 커밋하지 마. 오직 위 스키마에 맞는 결과만 반환해.
+            1. Jekyll front matter(title, date, categories, tags, description)와 본문을
+               하나의 마크다운 코드 블록 안에 통째로 넣어줘.
+            2. date는 ${{ github.event.issue.created_at }} 기준으로
+               "YYYY-MM-DD HH:mm:ss +0900" 형식으로 적어줘 (실제 시각으로 KST 변환해서).
+            3. 코드 블록 아래에, 왜 이렇게 구성했는지 1~2문장으로 짧게 덧붙여줘.
+            4. 절대 파일을 만들거나 수정하거나 커밋하지 마. 오직 이 답변으로만 제안해.
 
       - name: Post polished draft as a comment
-        if: steps.claude.outputs.structured_output != ''
+        if: steps.claude.outputs.execution_file != ''
         uses: actions/github-script@v7
         env:
-          # 백틱 등 특수문자가 섞인 콘텐츠를 안전하게 넘기기 위해
-          # 소스코드에 직접 문자열로 끼워넣지 않고 환경변수로 전달합니다.
-          CLAUDE_STRUCTURED_OUTPUT: ${{ steps.claude.outputs.structured_output }}
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
         with:
           script: |
-            const output = JSON.parse(process.env.CLAUDE_STRUCTURED_OUTPUT);
-            const body = [
-              '**초안 제안**',
-              '',
-              '```markdown',
-              output.draft_markdown,
-              '```',
-              '',
-              `_${output.note}_`,
-            ].join('\n');
+            const fs = require('fs');
+
+            const filePath = process.env.EXECUTION_FILE;
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+
+            // "result" 타입 턴에 최종 답변 전체가 들어있음 (없으면 마지막 assistant 턴의 텍스트로 대체)
+            const resultTurn = [...data].reverse().find((t) => t.type === 'result');
+            let finalText = resultTurn && resultTurn.result ? resultTurn.result : '';
+
+            if (!finalText) {
+              const assistantTurns = data.filter((t) => t.type === 'assistant');
+              const last = assistantTurns[assistantTurns.length - 1];
+              const textParts = (last?.message?.content || [])
+                .filter((c) => c.type === 'text')
+                .map((c) => c.text);
+              finalText = textParts.join('\n\n');
+            }
+
+            if (!finalText) {
+              finalText = '_(응답을 추출하지 못했습니다. Actions 로그를 확인해주세요.)_';
+            }
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body,
+              body: `**초안 제안**\n\n${finalText}`,
             });
 
       - name: Notify on failure
