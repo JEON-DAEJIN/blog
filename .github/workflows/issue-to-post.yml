@@ -101,11 +101,16 @@ jobs:
             core.setOutput('post_title', title);
 
       - name: Commit and push
+        env:
+          # 제목에 따옴표 등 특수문자가 섞여도 쉘 명령어가 깨지지 않도록
+          # 텍스트를 직접 끼워넣지 않고 환경변수로 전달합니다.
+          POST_FILENAME: ${{ steps.create.outputs.filename }}
+          POST_TITLE: ${{ steps.create.outputs.post_title }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "${{ steps.create.outputs.filename }}"
-          git commit -m "post: ${{ steps.create.outputs.post_title }}"
+          git add "$POST_FILENAME"
+          git commit -m "post: $POST_TITLE"
           git push
 
       - name: Trigger site deploy
@@ -123,13 +128,15 @@ jobs:
 
       - name: Comment and close issue
         uses: actions/github-script@v7
+        env:
+          POST_FILENAME: ${{ steps.create.outputs.filename }}
         with:
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `✅ 포스트가 생성되어 게시되었습니다: \`${{ steps.create.outputs.filename }}\`\n잠시 후 블로그에 반영됩니다.`,
+              body: `✅ 포스트가 생성되어 게시되었습니다: \`${process.env.POST_FILENAME}\`\n잠시 후 블로그에 반영됩니다.`,
             });
             await github.rest.issues.update({
               owner: context.repo.owner,
