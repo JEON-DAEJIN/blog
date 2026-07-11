@@ -54,12 +54,19 @@
               <ul class="nav flex-column">
                 {% assign main_categories = "AI 개념정리,개발 기록,회고" | split: ',' %}
                 {% for cat in main_categories %}
-                  {% capture cat_url %}/categories/{{ cat | slugify | url_encode }}/{% endcapture %}
-                  <li class="nav-item">
-                    <a href="{{ cat_url | relative_url }}" class="nav-link sidebar-sub-link">
-                      <span>{{ cat }}</span>
-                    </a>
-                  </li>
+                  {% if site.categories[cat] %}
+                    {% capture cat_url %}/categories/{{ cat | slugify | url_encode }}/{% endcapture %}
+                    <li class="nav-item">
+                      <a href="{{ cat_url | relative_url }}" class="nav-link sidebar-sub-link">
+                        <span>{{ cat }}</span>
+                      </a>
+                    </li>
+                  {% else %}
+                    <!-- 아직 이 카테고리에 글이 없어 페이지가 생성되지 않았으므로 링크 대신 비활성 텍스트로 표시 -->
+                    <li class="nav-item">
+                      <span class="nav-link sidebar-sub-link disabled text-muted">{{ cat }}</span>
+                    </li>
+                  {% endif %}
                 {% endfor %}
               </ul>
             </div>
