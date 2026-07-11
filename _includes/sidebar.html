@@ -81,6 +81,13 @@
         {% endif %}
         <!-- .nav-item -->
       {% endfor %}
+      <!-- 관리자(글쓰기) 페이지 바로가기 -->
+      <li class="nav-item">
+        <a href="{{ '/admin/' | relative_url }}" class="nav-link">
+          <i class="fa-fw fas fa-pen-to-square"></i>
+          <span>{{ "관리자" | upcase }}</span>
+        </a>
+      </li>
     </ul>
   </nav>
 
