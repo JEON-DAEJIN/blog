@@ -1,0 +1,54 @@
+name: "Draft Polish"
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  polish:
+    # 보안: 저장소 소유자 본인이 "초안 다듬기" 폼으로 연 이슈만 처리합니다.
+    # (Write 권한을 주지 않았기 때문에 Claude가 파일을 만들거나 커밋할 수는 없습니다 —
+    #  댓글로 초안을 제안하는 것까지만 가능합니다.)
+    if: |
+      github.event.issue.user.login == github.repository_owner &&
+      contains(github.event.issue.body, '### 러프한 생각')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Ask Claude to polish the draft
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --max-turns 6
+            --disallowedTools "Write,Edit,NotebookEdit,Bash"
+          prompt: |
+            너는 "AI 에이전트 개발기록"(DJ's Blog)의 글쓰기 도우미야.
+            이 저장소의 README.md, _tabs/about.md, 그리고 _posts/ 안의 기존 글들을 참고해서
+            이 블로그의 문체와 구조를 파악해.
+
+            이 블로그의 카테고리는 3개뿐이야: "AI 개념정리", "개발 기록", "회고".
+            글 구조 원칙: 문단은 3~4줄 이내로 짧게, 200~300자마다 소제목으로 끊기,
+            글 맨 위에 한 줄 요약을 인용구(>)로 넣기.
+
+            아래는 사용자가 이슈로 남긴 러프한 생각과 카테고리 힌트야:
+
+            ---
+            ${{ github.event.issue.body }}
+            ---
+
+            이 내용을 위 원칙에 맞는 완성된 블로그 글로 다듬어서 답변해줘. 답변 형식:
+
+            1. Jekyll front matter(title, date, categories, tags, description)와 본문을
+               하나의 마크다운 코드 블록 안에 통째로 넣어줘.
+            2. date는 ${{ github.event.issue.created_at }} 기준으로
+               "YYYY-MM-DD HH:mm:ss +0900" 형식으로 적어줘 (실제 시각으로 KST 변환해서).
+            3. 코드 블록 아래에, 왜 이렇게 구성했는지 1~2문장으로 짧게 덧붙여줘.
+            4. 절대 파일을 만들거나 수정하거나 커밋하지 마. 오직 이 댓글 응답으로만 제안해.
