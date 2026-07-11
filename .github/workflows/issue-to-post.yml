@@ -10,10 +10,12 @@ permissions:
 
 jobs:
   create-post:
-    # 보안: 라벨이 있어도 저장소 소유자 본인이 연 이슈만 자동 게시 대상으로 처리합니다.
+    # 보안: 저장소 소유자 본인이, "새 블로그 글" 폼으로 연 이슈만 자동 게시 대상으로 처리합니다.
+    # (이슈 폼의 labels는 라벨이 저장소에 미리 존재해야만 자동 적용되므로 라벨 대신
+    #  폼 전용 섹션 마커(### 제목)로 판별합니다.)
     if: |
-      contains(github.event.issue.labels.*.name, 'new-post') &&
-      github.event.issue.user.login == github.repository_owner
+      github.event.issue.user.login == github.repository_owner &&
+      contains(github.event.issue.body, '### 제목')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
