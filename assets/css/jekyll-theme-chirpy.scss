@@ -27,3 +27,10 @@
   padding-left: 2.5rem !important;
   font-size: 0.9em;
 }
+
+/* 태그라인을 여러 줄(title_lines/tagline_lines)로 표시하면서
+   테마 기본값인 고정 높이(3rem)를 넘어 아래 메뉴와 겹치던 문제 수정 */
+#sidebar .site-subtitle {
+  height: auto;
+  line-height: 1.4;
+}
