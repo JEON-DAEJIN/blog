@@ -14,9 +14,9 @@ timezone: Asia/Seoul
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: AI 학습 일지 # the main title
+title: AI 에이전트 개발 기록 # the main title
 
-tagline: AI를 공부하며 남기는 기록 # it will display as the subtitle
+tagline: 50대 비개발자가 생성형 AI와 AI 에이전트를 배우며 개발,실습,시행착오를 기록하는 성장 아카이브 # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   AI를 배우면서 배운 내용, 시행착오, 생각을 정리하는 개인 학습 블로그입니다.
@@ -98,7 +98,7 @@ theme_mode: # [light | dark]
 cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar:
+avatar: /assets/img/avatar.jpg
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.

@@ -1,6 +1,6 @@
-# AI 학습 일지
+# AI 에이전트 개발 기록
 
-[Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 테마로 만든 GitHub Pages 블로그입니다. AI를 공부하며 배운 내용과 시행착오를 기록합니다.
+[Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 테마로 만든 GitHub Pages 블로그입니다. 50대 비개발자가 생성형 AI와 AI 에이전트를 배우며 개발, 실습, 시행착오를 기록하는 성장 아카이브입니다.
 
 - 블로그 주소: https://jeon-daejin.github.io/blog/
 - 글 작성: `_posts/YYYY-MM-DD-제목.md` 형식으로 파일을 추가하면 됩니다.

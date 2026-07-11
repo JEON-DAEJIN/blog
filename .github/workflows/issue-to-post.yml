@@ -65,10 +65,12 @@ jobs:
               ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean).join(', ')
               : '';
 
-            const now = new Date();
+            // GitHub Actions 러너는 UTC로 동작하므로, KST(+9h)로 보정한 시각을 사용합니다.
+            const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+            const now = new Date(Date.now() + KST_OFFSET_MS);
             const pad = (n) => String(n).padStart(2, '0');
-            const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-            const datetime = `${date} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} +0900`;
+            const date = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())}`;
+            const datetime = `${date} ${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} +0900`;
 
             const slug = title.trim().replace(/\s+/g, '-').replace(/[\/\\:*?"<>|#]/g, '');
             let filename = `_posts/${date}-${slug}.md`;
