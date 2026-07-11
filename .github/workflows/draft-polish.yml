@@ -29,7 +29,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
             --max-turns 6
-            --json-schema {"type":"object","properties":{"draft_markdown":{"type":"string"},"note":{"type":"string"}},"required":["draft_markdown","note"]}
+            --output-format json
+            --json-schema '{"type":"object","properties":{"draft_markdown":{"type":"string"},"note":{"type":"string"}},"required":["draft_markdown","note"]}'
           prompt: |
             너는 "AI 에이전트 개발기록"(DJ's Blog)의 글쓰기 도우미야.
             이 저장소의 README.md, _tabs/about.md, 그리고 _posts/ 안의 기존 글들을 참고해서
