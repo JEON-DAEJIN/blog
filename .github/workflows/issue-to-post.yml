@@ -1,0 +1,121 @@
+name: "Issue to Post"
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-post:
+    # 보안: 라벨이 있어도 저장소 소유자 본인이 연 이슈만 자동 게시 대상으로 처리합니다.
+    if: |
+      contains(github.event.issue.labels.*.name, 'new-post') &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Parse issue and create post file
+        id: create
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            function escapeRegex(s) {
+              return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function section(body, label) {
+              const re = new RegExp(
+                `### ${escapeRegex(label)}\\s*\\n\\s*([\\s\\S]*?)(?=\\n### |$)`
+              );
+              const m = body.match(re);
+              let val = m ? m[1].trim() : '';
+              if (val === '_No response_') val = '';
+              return val;
+            }
+
+            const body = context.payload.issue.body || '';
+            const title = section(body, '제목');
+            const category = section(body, '카테고리');
+            const tagsRaw = section(body, '태그 (쉼표로 구분)');
+            const description = section(body, '요약 (검색결과/공유 시 보여줄 한두 줄)');
+            const content = section(body, '본문 (마크다운)');
+
+            if (!title || !content) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '⚠️ 제목 또는 본문을 읽지 못했습니다. 이슈 폼 형식 그대로 작성했는지 확인해주세요.',
+              });
+              core.setFailed('title or content missing');
+              return;
+            }
+
+            const tags = tagsRaw
+              ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean).join(', ')
+              : '';
+
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+            const datetime = `${date} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} +0900`;
+
+            const slug = title.trim().replace(/\s+/g, '-').replace(/[\/\\:*?"<>|#]/g, '');
+            let filename = `_posts/${date}-${slug}.md`;
+            if (fs.existsSync(filename)) {
+              filename = `_posts/${date}-${slug}-${context.issue.number}.md`;
+            }
+
+            const escapedTitle = title.replace(/"/g, '\\"');
+            const escapedDesc = description.replace(/"/g, '\\"');
+
+            const front = [
+              '---',
+              `title: "${escapedTitle}"`,
+              `date: ${datetime}`,
+              `categories: [${category}]`,
+              `tags: [${tags}]`,
+              `description: "${escapedDesc}"`,
+              '---',
+              '',
+              content,
+              '',
+            ].join('\n');
+
+            fs.mkdirSync('_posts', { recursive: true });
+            fs.writeFileSync(filename, front, 'utf8');
+
+            core.setOutput('filename', filename);
+            core.setOutput('post_title', title);
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${{ steps.create.outputs.filename }}"
+          git commit -m "post: ${{ steps.create.outputs.post_title }}"
+          git push
+
+      - name: Comment and close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ 포스트가 생성되어 게시되었습니다: \`${{ steps.create.outputs.filename }}\`\n잠시 후 블로그에 반영됩니다.`,
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+            });
