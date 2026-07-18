@@ -5,7 +5,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-CATS=("AI 개념정리" "개발 기록" "회고")
+CATS=("AI 개념정리" "개발 기록" "회고" "아이펠")
 
 echo "=== 새 글 만들기 ==="
 read -rp "제목: " TITLE
@@ -18,9 +18,9 @@ echo "카테고리를 선택하세요:"
 for i in "${!CATS[@]}"; do
   echo "  $((i + 1)). ${CATS[$i]}"
 done
-read -rp "번호 (1-3): " CAT_NUM
-if ! [[ "$CAT_NUM" =~ ^[1-3]$ ]]; then
-  echo "1~3 사이의 번호를 입력하세요."
+read -rp "번호 (1-4): " CAT_NUM
+if ! [[ "$CAT_NUM" =~ ^[1-4]$ ]]; then
+  echo "1~4 사이의 번호를 입력하세요."
   exit 1
 fi
 CATEGORY="${CATS[$((CAT_NUM - 1))]}"
