@@ -11,6 +11,12 @@ lang: ko-KR
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Asia/Seoul
 
+# 글의 date가 빌드 시각보다 미래면 Jekyll이 기본으로 목록에서 빼버린다.
+# 이 블로그는 매번 push 직후 자동 빌드되는데, 글 frontmatter의 date를 그날 저녁 시각(예: 19:00)으로
+# 고정해두다 보니 그보다 이른 시각에 push하면 미래글로 취급돼 배포에서 누락되는 사고가 있었다(2026-08-28).
+# 발행 시점을 언제로 잡든 즉시 반영되도록 미래글 필터를 끈다.
+future: true
+
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
