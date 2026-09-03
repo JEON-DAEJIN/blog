@@ -242,6 +242,10 @@ exclude:
   - purgecss.js
   - "*.config.js"
   - "package*.json"
+  # 개인 참고용 매뉴얼 원본 — 버전관리는 하되 사이트로는 배포하지 않는다.
+  - "블로그_자동배포_구축법.md"
+  - "블로그_자동배포_구축법.html"
+  - "블로그_자동배포_구축법.docx"
 
 jekyll-archives:
   enabled: [categories, tags]
