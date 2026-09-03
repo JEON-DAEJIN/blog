@@ -1,3 +1,12 @@
+---
+project: true
+status: 미정
+category: 글쓰기·출판
+priority: 중
+last_updated: 2026-07-18
+next_action: ""
+---
+
 # AI 에이전트 개발 기록
 
 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 테마로 만든 GitHub Pages 블로그입니다. 50대 비개발자가 생성형 AI와 AI 에이전트를 배우며 개발, 실습, 시행착오를 기록하는 성장 아카이브입니다.
