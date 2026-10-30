@@ -1,10 +1,10 @@
 ---
 project: true
-status: 미정
+status: 운영중
 category: 글쓰기·출판
 priority: 중
-last_updated: 2026-07-18
-next_action: ""
+last_updated: 2026-10-27
+next_action: "아이펠 수업일지 마감 때마다 새 글 게시(최근 10-23·26·27일자). 10-24·25 등 빠진 날 게시 여부 확인"
 ---
 
 # AI 에이전트 개발 기록
